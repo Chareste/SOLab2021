@@ -4,8 +4,6 @@
 #include <pthread.h>
 #include <string.h>
 
-
-//#include "libs/functs.h"
 #include "libs/deque.h"
 
 
@@ -38,17 +36,14 @@ int main(int argc, char *argv[]){
    
    init();
    thpool = malloc(sizeof(pthread_t)*3);
-   //creo i thread
+   
    thread_create(&thpool[0],/*attrs*/ NULL, readfile, (void*)filename);
    thread_create(&thpool[1],/*attrs*/ NULL, tokenizer, /*args*/NULL);
    thread_create(&thpool[2],/*attrs*/ NULL, printwords, /*args*/NULL);
 
-   //join
-   for(int i=0; i<3; i++){
+   for(int i=0; i<3; i++)
       thread_join(thpool[i], NULL);
-   }
-   //print_deque(deque_12);
-   //print_deque(deque_23);
+
    free_deque(deque_12,1);
    free_deque(deque_23,0);
    free(thpool);
@@ -74,7 +69,6 @@ void* readfile(void* arg){
    printf("1: File read\n");
    fclose(fp);
    free(line);
-   //print_deque(deque_12);
    return NULL; 
 }
 
@@ -85,10 +79,8 @@ void* tokenizer(){
    char* bfr;
    //char* bfr = malloc(sizeof(char)*BUFSIZE);
    while(1){
-      //print_deque(deque_12);  
       pop_head(deque_12, (void*)&bfr,1);
-      //printf("pop: (%s)\n",bfr);
-      //quando legge bfr, invece di essere null è '\0'
+   
       if(bfr==NULL && rd) break;
       else if(bfr==NULL){
          nanosleep(&t, NULL);
@@ -97,15 +89,13 @@ void* tokenizer(){
       char* state;
       char* token = strtok_r(bfr, " ",&state);
       while(token!=NULL){
-         //printf("token: %s\n", token);
          push_tail(deque_23, (void*)token);
          token = strtok_r(NULL, " ",&state);
       }
       fflush(stdout);
-      //bfr = realloc(bfr, sizeof(char)*BUFSIZE);
+      
    }
    
-   //free(bfr);
    tk=1;
    puts("2: Tokenized");
    return NULL;
@@ -114,7 +104,6 @@ void* printwords(){
    struct timespec t = {0,1000000};
    while(isEmpty(deque_23))
       nanosleep(&t, NULL);
-   //char* temp = calloc(1, sizeof(char)*BUFSIZE);
    char* word;
    while(1){
       pop_head(deque_23, (void*)&word,0);
@@ -125,10 +114,8 @@ void* printwords(){
       }
       printf(">%s\n",word);
       fflush(stdout);
-      //word = realloc(word,sizeof(char)*BUFSIZE);
    }
    puts("3: all words printed");
-   //free(word);
    return NULL;
 }
 
